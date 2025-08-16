@@ -21,7 +21,7 @@ export const manufacturers = {
 
 // Fetch from backend
 export async function fetchVehicleData(): Promise<VehicleRegistration[]> {
-  const response = await fetch("http://127.0.0.1:8000/vehicle-data/");
+  const response = await fetch("https://vahan-dashboard-qzl6.onrender.com/vehicle-data/");
   if (!response.ok) throw new Error("Failed to fetch vehicle data");
   const data: VehicleRegistration[] = await response.json();
 
