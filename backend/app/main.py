@@ -17,7 +17,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+@app.get("/")
+def read_root():
+    return {"message": "FastAPI app deployed successfully on Render!"}
 # --- Include routers ---
 app.include_router(vehicle.router, prefix="/vehicle-data", tags=["Vehicle Data"])
 app.include_router(manufacturer.router, prefix="/manufacturer-data", tags=["Manufacturer Data"])
