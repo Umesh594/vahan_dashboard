@@ -6,7 +6,8 @@ import {
   fetchVehicleData,
   calculateGrowthMetrics,
   VehicleRegistration,
-  calculateGrowthPerManufacturer
+  calculateGrowthPerManufacturer,
+  GrowthMetrics
 } from '@/data/vehicleData';
 import { Car, Truck, Bike, TrendingUp } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -25,30 +26,29 @@ export const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  const fetchData = () => {
-    fetchVehicleData()
-      .then(data => { setVehicleData(data); setLoading(false); })
-      .catch(err => { console.error(err); setLoading(false); });
-  };
-
-  fetchData(); // initial fetch
-
-  const interval = setInterval(fetchData, 60000); // every 60 sec
-  return () => clearInterval(interval);
-}, []);
-
+    const fetchData = async () => {
+      try {
+        const data = await fetchVehicleData();
+        setVehicleData(data);
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setLoading(false);
+      }
+    };
+    fetchData();
+    const interval = setInterval(fetchData, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const filteredData = useMemo(() => {
     let data = vehicleData;
-
     if (selectedVehicleType !== 'ALL') {
       data = data.filter(d => d.vehicleType === selectedVehicleType);
     }
-
     if (selectedManufacturer !== 'ALL') {
       data = data.filter(d => d.manufacturer === selectedManufacturer);
     }
-
     if (dateRange) {
       const [start, end] = dateRange;
       data = data.filter(d => {
@@ -57,17 +57,16 @@ export const Dashboard = () => {
         return recordDate.isAfter(start) && recordDate.isBefore(end.add(1, 'day'));
       });
     }
-
     return data;
   }, [vehicleData, selectedVehicleType, selectedManufacturer, dateRange]);
 
+  // Corrected metrics
   const overallMetrics = calculateGrowthMetrics(vehicleData);
   const vehicleTypeMetrics = {
-    '2W': calculateGrowthMetrics(vehicleData, '2W'),
-    '3W': calculateGrowthMetrics(vehicleData, '3W'),
-    '4W': calculateGrowthMetrics(vehicleData, '4W')
+    '2W': calculateGrowthMetrics(vehicleData.filter(d => d.vehicleType === '2W')),
+    '3W': calculateGrowthMetrics(vehicleData.filter(d => d.vehicleType === '3W')),
+    '4W': calculateGrowthMetrics(vehicleData.filter(d => d.vehicleType === '4W'))
   };
-
   const filteredMetrics = calculateGrowthMetrics(filteredData);
   const perManufacturerMetrics = calculateGrowthPerManufacturer(filteredData);
 
@@ -88,7 +87,6 @@ export const Dashboard = () => {
     vehicleData.forEach(item => {
       totals[item.manufacturer] = (totals[item.manufacturer] || 0) + item.registrations;
     });
-
     return Object.entries(totals)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 10)
@@ -111,7 +109,7 @@ export const Dashboard = () => {
             Vehicle Registration Dashboard
           </h1>
           <p className="text-muted-foreground text-lg">
-            Investor Analytics • Real time Vehicle Registration Data
+            Investor Analytics • Real-time Vehicle Registration Data
           </p>
         </div>
 
@@ -126,7 +124,6 @@ export const Dashboard = () => {
               onManufacturerChange={setSelectedManufacturer}
               onReset={handleReset}
             />
-
             <div className="p-4 bg-secondary/20 rounded-lg">
               <p className="mb-2 font-medium">Select Date Range</p>
               <RangePicker
@@ -210,7 +207,6 @@ export const Dashboard = () => {
                 type="pie"
                 title="Vehicle Type Distribution"
               />
-
               <div className="bg-gradient-card p-6 rounded-lg border border-border">
                 <h3 className="text-lg font-semibold mb-4 text-card-foreground">
                   Top Manufacturers

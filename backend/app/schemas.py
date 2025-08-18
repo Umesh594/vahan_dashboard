@@ -3,7 +3,7 @@ from datetime import date
 
 class VehicleRegistrationBase(BaseModel):
     date: date
-    vehicleType: str
+    vehicle_type: str
     manufacturer: str
     registrations: int
     quarter: int
@@ -15,7 +15,7 @@ class VehicleRegistrationCreate(VehicleRegistrationBase):
 class VehicleRegistrationOut(VehicleRegistrationBase):
     id: int
     class Config:
-        from_attributes = True  # v2 replacement for orm_mode
+        from_attributes = True  # Pydantic v2 replacement for orm_mode
 
 class GrowthMetrics(BaseModel):
     yoyGrowth: float

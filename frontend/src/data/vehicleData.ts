@@ -1,5 +1,5 @@
 export interface VehicleRegistration {
-  date: string; // FastAPI returns "YYYY-MM-DD"
+  date: string; // "YYYY-MM-DD"
   vehicleType: '2W' | '3W' | '4W';
   manufacturer: string;
   registrations: number;
@@ -12,24 +12,35 @@ export interface GrowthMetrics {
   qoqGrowth: number;
   totalRegistrations: number;
 }
-
+export interface FullGrowth {
+  overall: GrowthMetrics;
+  perManufacturer: Record<string, GrowthMetrics>;
+}
 export const manufacturers = {
   '2W': ['Hero MotoCorp', 'Honda', 'TVS', 'Bajaj', 'Yamaha', 'Royal Enfield'],
   '3W': ['Bajaj', 'Mahindra', 'Piaggio', 'Force Motors', 'Atul Auto'],
   '4W': ['Maruti Suzuki', 'Hyundai', 'Tata Motors', 'Mahindra', 'Toyota', 'Kia']
 };
 
-// Fetch from backend
+// Fetch from backend and map snake_case → camelCase
 export async function fetchVehicleData(): Promise<VehicleRegistration[]> {
-  const response = await fetch("https://vahan-dashboard-qzl6.onrender.com/vehicle-data/");
+  const response = await fetch("http://localhost:8000/vehicle-data/");
   if (!response.ok) throw new Error("Failed to fetch vehicle data");
-  const data: VehicleRegistration[] = await response.json();
-
-  // Ensure date is string
+  const data: any[] = await response.json();
   return data.map(d => ({
-    ...d,
-    date: d.date.toString()
+    date: d.date.toString(),
+    vehicleType: d.vehicle_type,
+    manufacturer: d.manufacturer,
+    registrations: d.registrations,
+    quarter: d.quarter,
+    year: d.year
   }));
+}
+
+export async function fetchFullGrowth(): Promise<FullGrowth> {
+  const response = await fetch("http://localhost:8000/growth/");
+  if (!response.ok) throw new Error("Failed to fetch growth metrics");
+  return response.json();
 }
 
 // Growth calculation
