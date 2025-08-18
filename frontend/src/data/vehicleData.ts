@@ -24,7 +24,7 @@ export const manufacturers = {
 
 // Fetch from backend and map snake_case → camelCase
 export async function fetchVehicleData(): Promise<VehicleRegistration[]> {
-  const response = await fetch("http://localhost:8000/vehicle-data/");
+  const response = await fetch("https://vahan-dashboard-40ha.onrender.com/vehicle-data/");
   if (!response.ok) throw new Error("Failed to fetch vehicle data");
   const data: any[] = await response.json();
   return data.map(d => ({
@@ -38,7 +38,7 @@ export async function fetchVehicleData(): Promise<VehicleRegistration[]> {
 }
 
 export async function fetchFullGrowth(): Promise<FullGrowth> {
-  const response = await fetch("http://localhost:8000/growth/");
+  const response = await fetch("https://vahan-dashboard-40ha.onrender.com/growth/");
   if (!response.ok) throw new Error("Failed to fetch growth metrics");
   return response.json();
 }
